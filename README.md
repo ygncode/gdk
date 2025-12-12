@@ -10,7 +10,8 @@ A CLI tool for managing multiple GitHub Deploy Keys on a single machine. Automat
 - Generate Ed25519 SSH keys for each repository
 - Automatically configure `~/.ssh/config` with unique host aliases
 - Support for multiple deploy keys on a single machine
-- Simple commands: `add`, `list`, `remove`
+- Simple commands: `add`, `list`, `show`, `remove`, `update`
+- Self-update capability
 
 ## Installation
 
@@ -130,6 +131,42 @@ gdk remove myorg/private-repo --yes
 
 ```bash
 gdk add myorg/private-repo --force
+```
+
+### Show deploy key details
+
+```bash
+gdk show myorg/private-repo
+```
+
+Output:
+```
+Repository:     myorg/private-repo
+Host Alias:     github.com-myorg-private-repo
+Created:        2025-01-15 10:30:00
+
+SSH Keys:
+  Private Key:  /home/user/.ssh/deploy-keys/myorg-private-repo/id_ed25519
+  Public Key:   /home/user/.ssh/deploy-keys/myorg-private-repo/id_ed25519.pub
+
+Public Key Content:
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAA... gdk:myorg/private-repo
+
+Git Commands:
+  Clone:        git clone git@github.com-myorg-private-repo:myorg/private-repo.git
+  Set Remote:   git remote set-url origin git@github.com-myorg-private-repo:myorg/private-repo.git
+```
+
+### Update gdk
+
+Update to the latest version:
+```bash
+gdk update
+```
+
+Check for updates without installing:
+```bash
+gdk update --check
 ```
 
 ## How It Works
