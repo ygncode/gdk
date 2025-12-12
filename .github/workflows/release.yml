@@ -1,0 +1,82 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+
+      - name: Run tests
+        run: go test -v ./...
+
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+
+      - name: Get version
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Build binaries
+        run: |
+          VERSION=${{ steps.version.outputs.VERSION }}
+
+          # Linux amd64
+          GOOS=linux GOARCH=amd64 go build -ldflags "-X github.com/ygncode/gdk/cmd.Version=${VERSION}" -o dist/gdk-linux-amd64 .
+
+          # Linux arm64
+          GOOS=linux GOARCH=arm64 go build -ldflags "-X github.com/ygncode/gdk/cmd.Version=${VERSION}" -o dist/gdk-linux-arm64 .
+
+          # macOS amd64
+          GOOS=darwin GOARCH=amd64 go build -ldflags "-X github.com/ygncode/gdk/cmd.Version=${VERSION}" -o dist/gdk-darwin-amd64 .
+
+          # macOS arm64 (Apple Silicon)
+          GOOS=darwin GOARCH=arm64 go build -ldflags "-X github.com/ygncode/gdk/cmd.Version=${VERSION}" -o dist/gdk-darwin-arm64 .
+
+          # Windows amd64
+          GOOS=windows GOARCH=amd64 go build -ldflags "-X github.com/ygncode/gdk/cmd.Version=${VERSION}" -o dist/gdk-windows-amd64.exe .
+
+      - name: Create checksums
+        run: |
+          cd dist
+          sha256sum * > checksums.txt
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            dist/gdk-linux-amd64
+            dist/gdk-linux-arm64
+            dist/gdk-darwin-amd64
+            dist/gdk-darwin-arm64
+            dist/gdk-windows-amd64.exe
+            dist/checksums.txt
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
