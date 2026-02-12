@@ -21,6 +21,8 @@ func TestParseRepoRef(t *testing.T) {
 		{"valid with underscores", "user_name/repo_name", "user_name", "repo_name", false},
 		{"valid with numbers", "user123/repo456", "user123", "repo456", false},
 		{"valid mixed", "My-Org_123/Some-Repo_456", "My-Org_123", "Some-Repo_456", false},
+		{"valid with dots", "setkyar/setkyar.com", "setkyar", "setkyar.com", false},
+		{"valid dot in owner", "my.org/repo", "my.org", "repo", false},
 
 		// Invalid inputs
 		{"invalid no slash", "userrepo", "", "", true},
@@ -61,6 +63,7 @@ func TestSanitizeForPath(t *testing.T) {
 		{"simple", "user", "repo", "user-repo"},
 		{"with dashes", "my-org", "my-repo", "my-org-my-repo"},
 		{"with underscores", "user_name", "repo_name", "user_name-repo_name"},
+		{"with dots", "setkyar", "setkyar.com", "setkyar-setkyar.com"},
 	}
 
 	for _, tt := range tests {
@@ -80,6 +83,7 @@ func TestBuildHostAlias(t *testing.T) {
 	}{
 		{"simple", "user", "repo", "github.com-user-repo"},
 		{"with dashes", "my-org", "my-repo", "github.com-my-org-my-repo"},
+		{"with dots", "setkyar", "setkyar.com", "github.com-setkyar-setkyar.com"},
 	}
 
 	for _, tt := range tests {

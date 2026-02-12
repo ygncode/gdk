@@ -12,8 +12,8 @@ var (
 	ErrInvalidRepoRef = errors.New("invalid repository reference")
 
 	// validRepoRefPattern matches owner/repo format
-	// Allows alphanumeric, dashes, and underscores
-	validRepoRefPattern = regexp.MustCompile(`^[a-zA-Z0-9_-]+$`)
+	// Allows alphanumeric, dots, dashes, and underscores
+	validRepoRefPattern = regexp.MustCompile(`^[a-zA-Z0-9._-]+$`)
 )
 
 // ParseRepoRef parses a repository reference in "owner/repo" format
